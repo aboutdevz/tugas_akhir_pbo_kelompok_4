@@ -63,6 +63,7 @@ public class DBconnection {
         dataStr += "keterangan='" + tamuObj.getKeterangan() + "', ";
         dataStr += "created_at='" + tamuObj.getCreatedAt() + "'";
         String sql = "UPDATE Tamu SET " + dataStr;
+        sql += " WHERE id = " + tamuObj.getId();
         
         stmt.executeUpdate(sql);
         
@@ -73,7 +74,7 @@ public class DBconnection {
       }
   }
   
-  public void deleteTamu(int id) {
+  public void deleteTamu(String id) {
       try {
         stmt = connection.createStatement();
         
@@ -99,6 +100,7 @@ public class DBconnection {
 //        System.out.println(metadata.getColumnTypeName(8));
         while(rs.next()) {
             TamuModel objTamu = new TamuModel();
+            objTamu.setId(Integer.toString(rs.getInt("id")));
             objTamu.setNama(rs.getString("nama"));
             objTamu.setAlamat(rs.getString("alamat"));
             objTamu.setKelamin(rs.getString("kelamin"));

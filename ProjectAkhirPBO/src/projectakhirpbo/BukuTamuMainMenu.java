@@ -10,13 +10,14 @@ import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
+import java.awt.Color;
 
 /**
  *
  * @author hulah
  */
 public class BukuTamuMainMenu extends javax.swing.JFrame {
-    
+
     /**
      * Creates new form BukuTamuMainMenu
      */
@@ -98,8 +99,14 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
 
         jLabel5.setText("No Telpon");
 
-        ButtonCancel.setText("Cancel");
+        ButtonCancel.setForeground(new java.awt.Color(255, 0, 0));
+        ButtonCancel.setText("Hapus");
         ButtonCancel.setVisible(false);
+        ButtonCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonCancelActionPerformed(evt);
+            }
+        });
 
         ButtonAction.setText("Submit");
         ButtonAction.addActionListener(new java.awt.event.ActionListener() {
@@ -111,7 +118,7 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
         KelaminComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih Jenis Kelamin", "Laki-Laki", "Perempuan" }));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 36)); // NOI18N
-        jLabel7.setText("APLIKASI BUKU TAMU");
+        jLabel7.setText("APLIKASI BUKU TAMU PERPUSTAKAAN");
 
         jLabel8.setText("Keterangan");
 
@@ -152,7 +159,7 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
                             .addComponent(TelponInput, javax.swing.GroupLayout.PREFERRED_SIZE, 561, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(AlamatInput, javax.swing.GroupLayout.PREFERRED_SIZE, 561, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(KelaminComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(119, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -207,6 +214,11 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
         }
     );
     TableData.setColumnSelectionAllowed(true);
+    TableData.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            rowClick(evt);
+        }
+    });
     jScrollPane1.setViewportView(TableData);
 
     javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -229,8 +241,8 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
         .addGroup(jPanel1Layout.createSequentialGroup()
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addContainerGap()
@@ -267,13 +279,46 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
 
     private void ButtonActionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonActionActionPerformed
         // TODO add your handling code here:
-        if (this.state == "create") {
-            this.submitForm();
-            return;
+        switch (this.state) {
+            case "create":
+                this.submitForm();
+                break;
+            case "edit/delete":
+                if (this.selectedModel != null) {
+                    this.editState();
+                }
+                break;
+            case "edit":
+                if (this.selectedModel != null) {
+                    this.editForm(this.selectedModel);
+                }
+                break;
+            case "delete":
+                this.submitForm();
+                break;
         }
-        
-        return;
     }//GEN-LAST:event_ButtonActionActionPerformed
+
+    private void rowClick(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rowClick
+        this.tableRowClicked();
+    }//GEN-LAST:event_rowClick
+
+    private void ButtonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCancelActionPerformed
+        // TODO add your handling code here:
+        switch (this.state) {
+            case "edit/delete":
+                if (this.selectedModel != null) {
+                    this.deleteForm(this.selectedModel);
+                }
+                break;
+            case "edit":
+                this.reset();
+                break;
+            case "delete":
+                this.deleteForm(this.selectedModel);
+                break;
+        }
+    }//GEN-LAST:event_ButtonCancelActionPerformed
 
     /**
      * @param args the command line arguments
@@ -302,7 +347,6 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -310,56 +354,11 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
             }
         });
     }
-    
-    public void clear() {
-        AlamatInput.setText("");
-        EmailInput.setText("");
-        TelponInput.setText("");
-        KelaminComboBox.setSelectedIndex(0);
-        NamaInput.setText("");
-    }
-    
-    public void disabled() {
-        
-    }
-    
-    public void enabled() {
-        
-    }
-    
-    public void init() {
-        ButtonCancel.setVisible(false);
-        this.clear();
-        this.fillTableData();
-    }
-    
-    public void fillTableData() {
-        String[] column = new String[] {"Nama", "Email", "Jenis Kelamin", "Alamat", "Telpon", "Keterangan", "Berkunjung Pada"};
-        DefaultTableModel model = new DefaultTableModel(column, 0);
-        DBconnection db = new DBconnection();
-        ArrayList<TamuModel> tamuArr = db.listTamu();
-        for(TamuModel item : tamuArr) {
-            String tamuString[] = new String[] {
-                item.getNama(),
-                item.getEmail(),
-                item.getKelamin(),
-                item.getAlamat(),
-                item.getTelpon(),
-                item.getKeterangan(),
-                item.getCreatedAt(),
-            };
-            model.addRow(tamuString);
-        }
-        TableData.setModel(model);
-    }
-    
-    public void reset() {
-        this.init();
-        this.fillTableData();
-    }
-    
+
+    public ArrayList<TamuModel> tamuArr;
+    public TamuModel selectedModel;
     private String state = "create";
-    
+
     private TamuModel tamuObj() {
         TamuModel obj = new TamuModel(true);
         obj.setNama(NamaInput.getText());
@@ -370,21 +369,117 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
         obj.setKeterangan((String) KeteranganInput.getText());
         return obj;
     }
-    
+
+    public void tableRowClicked() {
+        if (state == "create") {
+            this.getSelectedRowTamuModel();
+            this.editDeleteState();
+        }
+    }
+
+    public void getSelectedRowTamuModel() {
+        int row = TableData.getSelectedRow();
+        TamuModel tamuSelected = tamuArr.get(row);
+        this.selectedModel = tamuSelected;
+        this.fillForm(tamuSelected);
+    }
+
+    public void init() {
+        this.createState();
+        this.initTableConnetion();
+        ButtonCancel.setVisible(false);
+        this.clear();
+        this.fillTableData(this.tamuArr);
+    }
+
+    public void editDeleteState() {
+        this.state = "edit/delete";
+        this.ButtonAction.setText("Edit");
+        this.ButtonCancel.setVisible(true);
+        this.ButtonCancel.setText("hapus");
+        this.disabled();
+    }
+
+    public void editState() {
+        this.state = "edit";
+        this.enabled();
+        this.ButtonAction.setText("Simpan");
+        this.ButtonCancel.setText("Batal");
+    }
+
+    public void createState() {
+        this.state = "create";
+        this.ButtonAction.setText("Tambah");
+        this.ButtonCancel.setVisible(false);
+        this.enabled();
+    }
+
+    public void clear() {
+        AlamatInput.setText("");
+        EmailInput.setText("");
+        TelponInput.setText("");
+        KelaminComboBox.setSelectedIndex(0);
+        NamaInput.setText("");
+        KeteranganInput.setText("");
+    }
+
+    public void disabled() {
+        this.AlamatInput.setEnabled(false);
+        this.EmailInput.setEnabled(false);
+        this.TelponInput.setEnabled(false);
+        this.NamaInput.setEnabled(false);
+        this.KeteranganInput.setEnabled(false);
+        this.KelaminComboBox.setEnabled(false);
+    }
+
+    public void enabled() {
+        this.AlamatInput.setEnabled(true);
+        this.EmailInput.setEnabled(true);
+        this.TelponInput.setEnabled(true);
+        this.NamaInput.setEnabled(true);
+        this.KeteranganInput.setEnabled(true);
+        this.KelaminComboBox.setEnabled(true);
+    }
+
+    public void reset() {
+        this.init();
+
+    }
+
     private void submitForm() {
         TamuModel tamuObj = this.tamuObj();
-        tamuObj.save();
         
+        if (!this.validate(tamuObj))
+            return;
+        
+        tamuObj.save();
+
         JFrame f = new JFrame();
-        JOptionPane.showMessageDialog(f,"Insert Sukses");
+        JOptionPane.showMessageDialog(f, "Simpan Sukses");
         this.reset();
     }
-    
-    private void editForm(TamuModel tamuObj) {
-        this.state = "edit";
-        this.fillForm(tamuObj);
+
+    public void deleteForm(TamuModel objTamu) {
+        objTamu.delete();
+
+        JFrame f = new JFrame();
+        JOptionPane.showMessageDialog(f, "Hapus Sukses");
+        this.reset();
     }
-    
+
+    public void editForm(TamuModel editedTamuModel) {
+        TamuModel tamuObj = this.tamuObj();
+        tamuObj.setId(editedTamuModel.getId());
+
+        if (!this.validate(tamuObj, true))
+            return;
+        
+        tamuObj.update();
+        JFrame f = new JFrame();
+        JOptionPane.showMessageDialog(f, "Edit Sukses");
+        this.reset();
+    }
+
     private void fillForm(TamuModel tamuObj) {
         this.clear();
         NamaInput.setText(tamuObj.getNama());
@@ -392,9 +487,68 @@ public class BukuTamuMainMenu extends javax.swing.JFrame {
         EmailInput.setText(tamuObj.getEmail());
         TelponInput.setText(tamuObj.getTelpon());
         KelaminComboBox.setSelectedItem(tamuObj.getKelamin());
-        KeteranganInput.setText("");
+        KeteranganInput.setText(tamuObj.getKeterangan());
     }
-   
+
+    public void initTableConnetion() {
+        DBconnection db = new DBconnection();
+        ArrayList<TamuModel> tamuArr = db.listTamu();
+        this.tamuArr = tamuArr;
+    }
+
+    public void fillTableData(ArrayList<TamuModel> tamuArr) {
+        String[] column = new String[]{"Nama", "Email", "Jenis Kelamin", "Alamat", "Telpon", "Keterangan", "Berkunjung Pada"};
+        DefaultTableModel model = new DefaultTableModel(column, 0) {
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        TableData.setRowSelectionAllowed(true);
+        TableData.setColumnSelectionAllowed(false);
+        for (TamuModel item : tamuArr) {
+            String tamuString[] = new String[]{
+                item.getNama(),
+                item.getEmail(),
+                item.getKelamin(),
+                item.getAlamat(),
+                item.getTelpon(),
+                item.getKeterangan(),
+                item.getCreatedAt(true),};
+            model.addRow(tamuString);
+        }
+        TableData.setModel(model);
+    }
+    
+    public Boolean validate(TamuModel obj) {
+        Boolean isValidateTrue = obj.validate();
+        if (!isValidateTrue) {
+            this.validationFailed();
+        }
+        
+        System.out.println(isValidateTrue);
+        
+        return isValidateTrue;
+    }
+    
+    public Boolean validate(TamuModel obj, Boolean isEdit) {
+        if (isEdit) {
+            Boolean isValidateTrue = obj.validate();
+            if (!isValidateTrue) {
+                this.validationFailed();
+            }
+            return isValidateTrue;
+        }
+        return false;
+    }
+    
+    public void validationFailed() {
+        JFrame f = new JFrame();
+        JOptionPane.showMessageDialog(f, "Semua Field Harus Di Isi", "", JOptionPane.ERROR_MESSAGE);
+        this.reset();
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField AlamatInput;
